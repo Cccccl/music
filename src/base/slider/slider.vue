@@ -5,7 +5,7 @@
       </slot>
     </div>
     <div class="dots">
-      <span>
+      <span class="dot" v-for="(item, index) in dots" :key="item" :class="{active: currentPageIndex===index}">
       </span>
     </div>
   </div>
@@ -15,6 +15,13 @@ import {addClass} from 'common/js/dom'
 import BScroll from 'better-scroll'
 export default {
   name: 'slider',
+  data: function () {
+    return {
+      dots: [],
+      currentPageIndex: 0,
+      sliderChildren: []
+    }
+  },
   props: {
     loop: {
       type: Boolean,
@@ -26,23 +33,29 @@ export default {
     },
     interval: {
       type: Number,
-      default: 4000
-    }
-  },
-  data: function () {
-    return {
-      dots: [],
-      sliderChildren: []
+      default: 1000
     }
   },
   mounted: function () {
     setTimeout(() => {
       this._setSliderWidth()
+      this._initDots()
       this._initSlider()
+
+      if (this.autoPlay) {
+        this._play()
+      }
     }, 20)
+    window.addEventListener('resize', () => {
+      if (!this.slider) {
+        return false
+      }
+      this._setSliderWidth(true)
+      this.slider.refresh()
+    })
   },
   methods: {
-    _setSliderWidth: function () {
+    _setSliderWidth: function (isResize) {
       this.sliderChildren = this.$refs.sliderGroup.children
       let width = 0
       let sliderWidth = this.$refs.slider.clientWidth
@@ -53,10 +66,13 @@ export default {
         child.style.width = sliderWidth + 'px'
         width += sliderWidth
       }
-      if (this.loop) {
+      if (this.loop && !isResize) {
         width += 2 * sliderWidth
       }
       this.$refs.sliderGroup.style.width = width + 'px'
+    },
+    _initDots: function () {
+      this.dots = new Array(this.sliderChildren.length)
     },
     _initSlider: function () {
       this.slider = new BScroll(this.$refs.slider, {
@@ -64,10 +80,35 @@ export default {
         scrollY: false,
         momentum: false,
         snap: {
-          loop: true,
-          threshold: 0.3
+          loop: this.loop,
+          threshold: 0.3,
+          speed: 400
         }
       })
+
+      this.slider.on('scrollEnd', () => {
+        let pageIndex = this.slider.getCurrentPage().pageX
+        this.currentPageIndex = pageIndex
+
+        if (this.autoPlay) {
+          this._play()
+        }
+      })
+
+      this.slider.on('beforeScrollStart', () => {
+        if (this.autoPlay) {
+          clearTimeout(this.timer)
+        }
+      })
+    },
+    _play: function () {
+      let pageIndex = this.currentPageIndex + 1
+      if (this.loop && pageIndex === this.sliderChildren.length - 2) {
+        pageIndex = 0
+      }
+      this.timer = setTimeout(() => {
+        this.slider.goToPage(pageIndex, 0, 400)
+      }, this.interval)
     }
   }
 }
@@ -96,6 +137,27 @@ export default {
                 }
             }
         }
+    }
+    .dots{
+      position: absolute;
+      right: 0;
+      left: 0;
+      bottom: 12px;
+      text-align: center;
+      font-size: 0;
+      .dot{
+        display: inline-block;
+        margin: 0 4px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: @color-text-l;
+        &.active{
+          width: 20px;
+          border-radius: 5px;
+          background-color: @color-text-ll
+        }
+      }
     }
 }
 </style>

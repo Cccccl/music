@@ -61,6 +61,15 @@ export default {
       width: 100%;
       overflow: hidden;
     }
+    .recommend-list{
+      .list-title{
+        height: 65px;
+        line-height: 65px;
+        text-align: center;
+        font-size: @font-size-medium;
+        color: @color-theme;
+      }
+    }
   }
 }
 </style>
