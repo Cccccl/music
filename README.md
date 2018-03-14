@@ -19,3 +19,6 @@ npm run build --report
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+
+#### 1.vue-cli构建的vue项目 webpack由2.2版本升级到3.6,后端接口代理，需要一些修改
