@@ -54,6 +54,9 @@ export default {
       this.slider.refresh()
     })
   },
+  destroyed: function () {
+    clearTimeout(this.timer)
+  },
   methods: {
     _setSliderWidth: function (isResize) {
       this.sliderChildren = this.$refs.sliderGroup.children
