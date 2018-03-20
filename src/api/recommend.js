@@ -26,7 +26,8 @@ export function getDiscList() {
     sin: 0,
     ein: 29,
     sortId: 5,
-    categoryId: 10000000
+    categoryId: 10000000,
+    format: 'json'
   })
 
   return axios.get(url, {
