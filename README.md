@@ -21,6 +21,7 @@ npm run build --report
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
 
-#### 1.vue-cli构建的vue项目 webpack由2.2版本升级到3.6,后端接口代理，需要一些修改
+#### 1. vue-cli构建的vue项目 webpack由2.2版本升级到3.6,后端接口代理，需要一些修改
 
-#### 1. 2018.03.20 scroll组件，lazyLoad,loading组件
+#### 2018.03.20 scroll组件，lazyLoad,loading组件
+#### 2018.03.22 singerList数据获取，并且转化为需要的数组结构   
