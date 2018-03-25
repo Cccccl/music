@@ -23,5 +23,6 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 
 #### 1. vue-cli构建的vue项目 webpack由2.2版本升级到3.6,后端接口代理，需要一些修改
 
-#### 2018.03.20 scroll组件，lazyLoad,loading组件
-#### 2018.03.22 singerList数据获取，并且转化为需要的数组结构   
+#### 2018.03.20 scroll组件，lazyLoad,loading组件。
+#### 2018.03.22 singerList数据获取，并且转化为需要的数组结构。  
+#### 2018.03.26 listview组件，右侧快速入口，滚动固定标题。

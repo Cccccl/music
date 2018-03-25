@@ -30,19 +30,28 @@
             </li>
         </ul>
     </div>
+    <div class="list-fixed" ref="fixed" v-show="fixedTitle">
+      <div class="fixed-title">{{fixedTitle}}</div>
+    </div>
+    <div v-show="!data.length" class="loading-container">
+      <loading></loading>
+    </div>
   </scroll>
 </template>
 <script type="text/ecmascript-6">
 import Scroll from 'base/scroll/scroll'
+import Loading from 'base/loading/loading'
 import {getData} from 'common/js/dom'
 
 const ANCHOR_HEIGHT = 14
+const TITLE_HEIGHT = 30
 
 export default {
   data() {
     return {
       scrollY: 0,
-      currentIndex: 0
+      currentIndex: 0,
+      diff: -1
     }
   },
   created() {
@@ -62,10 +71,17 @@ export default {
       return this.data.map((group) => {
         return group.title.substr(0, 1)
       })
+    },
+    fixedTitle() {
+      if (this.scrollY > 0) {
+        return ''
+      }
+      return this.data[this.currentIndex] ? this.data[this.currentIndex].title : ''
     }
   },
   components: {
-    Scroll
+    Scroll,
+    Loading
   },
   methods: {
     onShortcutTouchstart(e) {
@@ -107,7 +123,7 @@ export default {
         height += item.clientHeight
         this.listHeight.push(height)
       }
-      // console.log(this.listHeight)
+      console.log(this.listHeight)
     }
   },
   watch: {
@@ -130,12 +146,25 @@ export default {
         let height2 = listHeight[i + 1]
         if (-newY >= height1 && -newY < height2) {
           this.currentIndex = i
-          // console.log(this.currentIndex)
+          this.diff = height2 + newY
           return
         }
       }
       // 当滚动到底部，且-newY大于最后一个元素的上限
       this.currentIndex = listHeight.length - 2
+    },
+    diff(newVal) {
+      console.log(this.fixedTop)
+      // 1.在30~0的时候fixedTo为-0~-30
+      // 2.在往下滚动的一瞬间（零界点的时候赋值为0），之后每次过fixed的时候赋值为0。
+      let fixedTop = (newVal > 0 && newVal < TITLE_HEIGHT) ? newVal - TITLE_HEIGHT : 0
+      if (this.fixedTop === fixedTop) {
+        return
+      }
+      // 只有在fixedTop 在0~30的时候，才会触发dom操作，并且使用GPU加速。
+      this.fixedTop = fixedTop
+      console.log(this.fixedTop)
+      this.$refs.fixed.style.transform = `translate3d(0,${fixedTop}px,0)`
     }
   }
 }
@@ -201,6 +230,26 @@ export default {
                 }
             }
         }
+    }
+    .list-fixed{
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      .fixed-title{
+        height: 30px;
+        line-height: 30px;
+        padding-left: 20px;
+        font-size: @font-size-small;
+        color: @color-text-l;
+        background: @color-highlight-background
+      }
+    }
+    .loading-container{
+      position: absolute;
+      width: 100%;
+      top: 50%;
+      transform: translateY(-50%)
     }
 }
 </style>
