@@ -1,11 +1,13 @@
 <template>
   <div class="singer">
+    <listview :data="singers" ref="list"></listview>
   </div>
 </template>
 <script type="text/ecmascript-6">
 import {getSingerList} from 'api/singer'
 import {ERR_OK} from 'api/config'
 import Singer from 'common/js/singer'
+import Listview from 'base/listview/listview'
 
 const HOT_NAME = '热门'
 const HOT_SINGER_LEN = 10
@@ -15,6 +17,9 @@ export default {
       singers: []
     }
   },
+  components: {
+    Listview
+  },
   created () {
     this._getSingerList()
   },
@@ -22,6 +27,7 @@ export default {
     _getSingerList() {
       getSingerList().then((res) => {
         if (res.code === ERR_OK) {
+          this.singers = (this._normalizeSinger(res.data.list))
           console.log(this._normalizeSinger(res.data.list))
         }
       })
@@ -50,11 +56,11 @@ export default {
             items: []
           }
         }
-        map[key].items.push({
+        map[key].items.push(new Singer({
           id: item.Fsinger_id,
           name: item.Fsinger_name,
           mid: item.Fsinger_mid
-        })
+        }))
       })
 
       let hot = []
@@ -77,4 +83,11 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+@import "~common/less/variable";
+.singer{
+    position: fixed;
+    top: 88px;
+    bottom: 0;
+    width: 100%;
+}
 </style>
