@@ -26,3 +26,4 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 #### 2018.03.20 scroll组件，lazyLoad,loading组件。
 #### 2018.03.22 singerList数据获取，并且转化为需要的数组结构。  
 #### 2018.03.26 listview组件，右侧快速入口，滚动固定标题。
+#### 2018.03.27 singer-detail组件， vuex 规范化，子路由的派发。

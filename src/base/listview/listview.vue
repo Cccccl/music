@@ -10,7 +10,9 @@
       <li class="list-group" v-for="group in data" v-bind:key="group.title" ref="listgroup">
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
-          <li class="list-group-item" v-for="item in group.items" v-bind:key="item.id">
+          <li class="list-group-item"
+              @click="selectItem(item)"
+              v-for="item in group.items" v-bind:key="item.id">
             <img class="avatar" v-lazy="item.avatar" alt="">
             <span class="name">{{item.name}}</span>
           </li>
@@ -84,6 +86,9 @@ export default {
     Loading
   },
   methods: {
+    selectItem(item) {
+      this.$emit('select', item)
+    },
     onShortcutTouchstart(e) {
       let anchorIndex = getData(e.target, 'index')
       let firstTouch = e.touches[0]
@@ -123,7 +128,7 @@ export default {
         height += item.clientHeight
         this.listHeight.push(height)
       }
-      console.log(this.listHeight)
+      // console.log(this.listHeight)
     }
   },
   watch: {
@@ -154,7 +159,7 @@ export default {
       this.currentIndex = listHeight.length - 2
     },
     diff(newVal) {
-      console.log(this.fixedTop)
+      // console.log(this.fixedTop)
       // 1.在30~0的时候fixedTo为-0~-30
       // 2.在往下滚动的一瞬间（零界点的时候赋值为0），之后每次过fixed的时候赋值为0。
       let fixedTop = (newVal > 0 && newVal < TITLE_HEIGHT) ? newVal - TITLE_HEIGHT : 0
@@ -163,7 +168,7 @@ export default {
       }
       // 只有在fixedTop 在0~30的时候，才会触发dom操作，并且使用GPU加速。
       this.fixedTop = fixedTop
-      console.log(this.fixedTop)
+      // console.log(this.fixedTop)
       this.$refs.fixed.style.transform = `translate3d(0,${fixedTop}px,0)`
     }
   }
