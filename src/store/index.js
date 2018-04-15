@@ -5,7 +5,8 @@ import * as getters from './getters'
 import state from './state'
 import mutations from './mutations'
 import createLogger from 'vuex/dist/logger'
-import createPersistedState from 'vuex-persistedstate'
+// vuex数据本地可持久化存储
+// import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
 
@@ -17,5 +18,5 @@ export default new Vuex.Store({
   state,
   mutations,
   strict: debug,
-  plugins: debug ? [createLogger(), createPersistedState()] : []
+  plugins: debug ? [createLogger()] : []
 })
