@@ -1,5 +1,5 @@
 <template>
-  <div class="player" v-show="playing">
+  <div class="player" v-show="playList.length>0">
     <transition name="normal"
                 @enter="enter"
                 @after-enter="afterEnter"
@@ -19,7 +19,7 @@
             <div class="middle">
                 <div class="middle-l">
                     <div class="cd-wrapper" ref="cdWrapper">
-                        <div class="cd">
+                        <div class="cd" :class="cdCls">
                             <img :src="currentSong.image" alt="" class="image">
                         </div>
                     </div>
@@ -30,14 +30,14 @@
                     <div class="icon i-left">
                         <i class="icon-sequence"></i>
                     </div>
-                    <div class="icon i-left">
-                        <i class="icon-prev"></i>
+                    <div class="icon i-left" :class="disableCls">
+                        <i class="icon-prev" @click="prev"></i>
                     </div>
-                    <div class="icon i-center">
-                        <i class="icon-play"></i>
+                    <div class="icon i-center" :class="disableCls">
+                        <i @click="togglePlaying" :class="playIcon"></i>
                     </div>
-                    <div class="icon i-right">
-                        <i class="icon-next"></i>
+                    <div class="icon i-right" :class="disableCls">
+                        <i class="icon-next" @click="next"></i>
                     </div>
                     <div class="icon i-right">
                         <i class="icon icon-not-favorite"></i>
@@ -49,18 +49,21 @@
     <transition name="mini">
         <div class="mini-player" v-show="!fullScreen" @click="open()">
             <div class="icon">
-                <img :src="currentSong.image" alt="" width="40" height="40">
+                <img :class="cdCls" :src="currentSong.image" alt="" width="40" height="40">
             </div>
             <div class="text">
                 <h2 class="name">{{currentSong.name}}</h2>
                 <p class="desc">{{currentSong.singer}}</p>
             </div>
-            <div class="control"></div>
+            <div class="control">
+                <i :class="miniIcon" @click.stop="togglePlaying"></i>
+            </div>
             <div class="control">
                 <i class="icon-playlist"></i>
             </div>
         </div>
     </transition>
+    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error"></audio>
   </div>
 </template>
 <script>
@@ -70,12 +73,30 @@ import {prefixStyle} from 'common/js/dom'
 
 const transform = prefixStyle('transform')
 export default {
+  data: function () {
+    return {
+      songReady: false
+    }
+  },
   computed: {
+    cdCls: function () {
+      return this.playing ? 'play' : 'play pause'
+    },
+    playIcon: function () {
+      return this.playing ? 'icon-pause' : 'icon-play'
+    },
+    miniIcon: function () {
+      return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+    },
+    disableCls: function () {
+      return this.songReady ? '' : 'disable'
+    },
     ...mapGetters([
       'playList',
       'fullScreen',
       'playing',
-      'currentSong'
+      'currentSong',
+      'currentIndex'
     ])
   },
   methods: {
@@ -127,6 +148,47 @@ export default {
       this.$refs.cdWrapper.style.transition = ''
       this.$refs.cdWrapper.style[transform] = ''
     },
+    togglePlaying: function () {
+      if (!this.songReady) {
+        return
+      }
+      this.setPlayingState(!this.playing)
+    },
+    next: function () {
+      if (!this.songReady) {
+        return
+      }
+      let index = this.currentIndex + 1
+      if (index === this.playList.length) {
+        index = 0
+      }
+      this.setCurrentIndex(index)
+      if (!this.playing) {
+        this.togglePlaying()
+      }
+      this.songReady = false
+    },
+    prev: function () {
+      if (!this.songReady) {
+        return
+      }
+      let index = this.currentIndex - 1
+      if (index === -1) {
+        index = this.playList.length - 1
+      }
+      this.setCurrentIndex(index)
+      if (!this.playing) {
+        this.togglePlaying()
+      }
+      this.songReady = false
+    },
+    ready: function () {
+      this.songReady = true
+    },
+    error: function () {
+      // 网络错误或者歌曲的url存在错误，这时候songReay不能赋值为true,下一首歌的功能也不能用
+      this.songReady = true // 这样发生上诉错误的时候也能使用
+    },
     // 获取初始位置和缩放尺寸
     _getPosAndScale: function () {
       const targetWidth = 40 // 小图的宽度
@@ -144,8 +206,24 @@ export default {
       }
     },
     ...mapMutations({
-      setFullScreen: 'SET_FULL_SCREEN'
+      setFullScreen: 'SET_FULL_SCREEN',
+      setPlayingState: 'SET_PLAYING_STATE',
+      setCurrentIndex: 'SET_CURRENT_INDEX'
     })
+  },
+  watch: {
+    currentSong: function () {
+      // dom 还没有ready,就调用play产生异常，需要添加一个延迟
+      this.$nextTick(() => {
+        this.$refs.audio.play()
+      })
+    },
+    playing: function (newPlaying) {
+      const audio = this.$refs.audio
+      this.$nextTick(() => {
+        newPlaying ? audio.play() : audio.pause()
+      })
+    }
   }
 }
 </script>
@@ -245,6 +323,13 @@ export default {
                         box-sizing: border-box;
                         border: 10px solid rgba(255, 255, 255, 0.1);
                         border-radius: 50%;
+                        // cd 旋转的样式
+                        &.play{
+                            animation: rotate 20s linear infinite
+                        }
+                        &.pause{
+                            animation-play-state: paused
+                        }
                         .image{
                             position: absolute;
                             left: 0;
@@ -267,6 +352,9 @@ export default {
                 .icon{
                     flex: 1;
                     color: @color-theme;
+                    &.disable{
+                        color: @color-theme-d
+                    }
                     i{
                         font-size: @font-size-large;
                     }
@@ -317,6 +405,13 @@ export default {
             padding: 0 10px 0 20px;
             img{
                 border-radius: 50%;
+                // cd 旋转的样式
+                &.play{
+                    animation: rotate 20s linear infinite
+                }
+                &.pause{
+                    animation-play-state: paused
+                }
             }
         }
         .text{
@@ -342,11 +437,19 @@ export default {
             flex: 0 0 30px;
             width: 30px;
             padding: 0 10px;
-            .icon-playlist{
+            .icon-play-mini,.icon-pause-mini,.icon-playlist{
                 color: @color-theme-d;
                 font-size: 30px;
             }
         }
+    }
+}
+@keyframes rotate {
+    0%{
+        transform: rotate(0)
+    }
+    100%{
+        transform: rotate(360deg)
     }
 }
 </style>
