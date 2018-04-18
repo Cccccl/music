@@ -10,7 +10,7 @@ const state = {
   // 顺序列表
   sequenceList: [],
   // 播放模式(3种播放模式：顺序，循环，随机) [语义化，配置文件]
-  mode: playMode.random,
+  mode: playMode.sequence,
   // 当前播放的是哪一首歌(索引)
   currentIndex: -1
 }
