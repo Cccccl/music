@@ -100,6 +100,8 @@
 </template>
 <script>
 import {mapGetters, mapMutations} from 'vuex'
+import {ERR_OK} from 'api/config'
+import {getMusic} from 'api/song'
 import animations from 'create-keyframe-animation'
 import {prefixStyle} from 'common/js/dom'
 import ProgressBar from 'base/progress-bar/progress-bar'
@@ -413,7 +415,8 @@ export default {
       setPlayingState: 'SET_PLAYING_STATE',
       setCurrentIndex: 'SET_CURRENT_INDEX',
       setPlayMode: 'SET_PLAY_MODE',
-      setPlaylist: 'SET_PLAYLIST'
+      setPlaylist: 'SET_PLAYLIST',
+      setCurrentSongUrl: 'SET_CURRENT_SONG_URL'
     })
   },
   watch: {
@@ -421,6 +424,13 @@ export default {
       if (newSong.id === oldSong.id) {
         return
       }
+      getMusic(newSong.mid).then((res) => {
+        if (res.code === ERR_OK) {
+          const songVkey = res.data.items[0].vkey
+          const url = `http://dl.stream.qqmusic.qq.com/C400${newSong.mid}.m4a?vkey=${songVkey}&guid=9605722104&uin=0&fromtag=66`
+          this.setCurrentSongUrl(url)
+        }
+      })
       // currentLyric 内部有一个定时器，切到下一首歌的时候，需要把上一个定时器关闭掉。
       if (this.currentLyric) {
         this.currentLyric.stop()
