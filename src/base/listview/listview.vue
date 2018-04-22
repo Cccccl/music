@@ -103,6 +103,9 @@ export default {
       let anchorIndex = parseInt(this.touch.anchorIndex) + delta
       this._scrollTo(anchorIndex)
     },
+    refresh() {
+      this.$refs.listview.refresh()
+    },
     scrollfn(pos) {
     //   console.log(pos)
       this.scrollY = pos.y
