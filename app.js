@@ -18,6 +18,38 @@ apiRoutes.get('/getDiscList',function(req,res){
     console.log(e)
   })
 })
+apiRoutes.get('/music', function (req, res) {
+  var url = 'https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg'
+  axios.get(url, {
+    headers: {
+      referer: 'https://c.y.qq.com/',
+      host: 'c.y.qq.com'
+    },
+    params: req.query
+  }).then((response) => {
+    res.json(response.data)
+  }).catch((e) => {
+    console.log(e)
+  })
+})
+apiRoutes.get('/getSongList', function (req, res) {
+  var url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+  axios.get(url, {
+    headers: {
+      referer: 'https://y.qq.com/n/yqq/playlist/',
+      host: 'c.y.qq.com'
+    },
+    params: req.query
+  }).then((response) => {
+    var ret = response.data
+    if (typeof ret === 'string') {
+      ret = JSON.parse(ret.substring(13, ret.length - 1))
+    }
+    res.json(ret)
+  }).catch((e) => {
+    console.log(e)
+  })
+})
 apiRoutes.get('/getLyric',function(req,res){
   var url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
   axios.get(url,{
@@ -43,7 +75,8 @@ apiRoutes.get('/getLyric',function(req,res){
 app.use('/api',apiRoutes)
 app.use(express.static('./dist'))
 
-const port = process.env.PORT || config.build.port
+// const port = process.env.PORT || config.build.port
+const port = config.build.port
 module.exports = app.listen(port, (err) => {
   if (err) {
     console.log(err)
