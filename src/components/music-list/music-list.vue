@@ -20,7 +20,7 @@
       :listen-scroll = "listenScroll"
       :data="songs" class="list" ref="list">
       <div class="song-list-wrapper">
-        <song-list :songs="songs" @select="selectItem"></song-list>
+        <song-list :rank="rank" :songs="songs" @select="selectItem"></song-list>
       </div>
       <div class="loading-container" v-show="!songs.length">
         <loading></loading>
@@ -58,7 +58,8 @@ export default {
   },
   data: function () {
     return {
-      scrollY: 0
+      scrollY: 0,
+      rank: true
     }
   },
   methods: {
