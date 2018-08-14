@@ -117,6 +117,21 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           console.log(e)
         })
       })
+      // 根据歌曲，歌手搜索
+      apiRoutes.get('/api/search', function(req,res){
+        var url = 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp'
+        axios.get(url, {
+          headers: {
+            referer: 'https://c.y.qq.com/',
+            host: 'c.y.qq.com'
+          },
+          params: req.query
+        }).then((response)=>{
+          res.json(JSON.parse(response.data.substring(9, response.data.length - 1)))
+        }).catch((e)=>{
+          console.log(e)
+        })
+      })
       app.use('/api',apiRoutes)
     }
   },
